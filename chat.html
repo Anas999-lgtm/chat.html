@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat AI - موقعك الاحترافي</title>
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #81d4fa, #b2ebf2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    min-height: 100vh;
+    margin: 0;
+}
+h1 {
+    color: #0d47a1;
+    text-align: center;
+    margin-bottom: 10px;
+}
+#chatBox {
+    width: 100%;
+    max-width: 500px;
+    height: 500px;
+    border: 3px solid #0d47a1;
+    border-radius: 20px;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: #ffffffcc;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+input {
+    width: 72%;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: 1px solid #0d47a1;
+}
+button {
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: none;
+    background-color: #0d47a1;
+    color: #fff;
+    cursor: pointer;
+    margin-left: 5px;
+    transition: 0.3s;
+}
+button:hover { background-color: #1565c0; }
+.user { color: #0d47a1; font-weight: bold; }
+.ai { color: #2e7d32; font-weight: bold; }
+p { margin: 5px 0; }
+footer {
+    margin-top: 15px;
+    color: #0d47a1;
+    font-size: 14px;
+}
+</style>
+</head>
+<body>
+<h1>🤖 Chat AI - موقعك الاحترافي</h1>
+<div id="chatBox"></div>
+<div style="display:flex; width:100%; max-width:500px;">
+    <input type="text" id="userInput" placeholder="اكتب هنا...">
+    <button onclick="sendMessage()">ارسال</button>
+</div>
+<footer>تم تطوير الموقع بواسطة: أنس ✨</footer>
+
+<script>
+const chatBox = document.getElementById("chatBox");
+
+const responses = [
+{keywords:["مرحبا","هلا","أهلا"], replies:["أهلا وسهلا! 🌟","هلا فيك! 😄","مرحبًا! كيفك اليوم؟"]},
+{keywords:["كيف حالك"], replies:["تمام الحمد لله 😄 وانت؟","بخير الحمد لله! وانت؟","الحمد لله، وانت عامل ايه؟"]},
+{keywords:["اسمك"], replies:["أنا روبوت دردشة صغير 🤖","اسمي Chat AI!","يمكن تناديني روبوت 😎"]},
+{keywords:["شكرا","متشكر"], replies:["العفو! 🌸","على الرحب والسعة!","ولا يهمك 😄"]},
+{keywords:["وداعا","خروج","باي"], replies:["باي! 🌟","إلى اللقاء! 👋","مع السلامة!"]},
+{keywords:["ماذا تفعل"], replies:["أنا أتحدث معك 😄","أتعلم وأتطور 🤖","أساعدك بالدردشة!"]},
+{keywords:["صباح الخير"], replies:["صباح النور! ☀️","صباح الفل 🌸","صباحك سعيد!"]},
+{keywords:["مساء الخير"], replies:["مساء النور! 🌙","مساء الورد 🌹","مساء جميل!"]},
+{keywords:["أنت ذكي"], replies:["شكرًا! 😎","أنا أحاول أكون ذكي 🤖","تحاول تقولي مدح لي 😅"]},
+{keywords:["أنت جميل"], replies:["شكرًا 😄","أنت أحلى! 🌟","ههه مشكور!"]},
+{keywords:["ماذا تحب"], replies:["أحب التحدث معك! 😄","أحب تعلم أشياء جديدة 🤖","أحب مساعدتك!"]},
+{keywords:["هل تستطيع"], replies:["سأحاول! 😎","ربما 😅","أكيد إذا قدرت"]},
+{keywords:["أخبرني نكتة","نكتة"], replies:["مرة واحد ذهب... 😅","هههه، عندي نكتة خفيفة 😄","نكتة اليوم: ..."]},
+{keywords:["أحبك"], replies:["شكراً! 🌸","أنا موجود لدردشة ممتعة 😄","ههه 😅"]},
+{keywords:["تعال","تعال هنا"], replies:["أنا هنا معك 😄","أهلا بك! 🌟"]},
+{keywords:["حزين"], replies:["لا تحزن 😢","أنا هنا معك 🌟"]},
+{keywords:["سعيد"], replies:["رائع! 😄","الحمد لله 🎉"]},
+{keywords:["ملل"], replies:["هيا نلعب لعبة صغيرة 😎","ممكن نحكي نكتة!"]},
+{keywords:["أين أنت"], replies:["أنا هنا في جهازك 😄","على الشاشة معك 🤖"]},
+{keywords:["تعلم"], replies:["أتعلم من محادثتنا!","أتعلم وأصبح أذكى 😎"]},
+{keywords:["الطقس"], replies:["لا أعرف الطقس بالضبط 😅","ربما مشمس 🌞 أو ممطر 🌧"]},
+{keywords:["طعام"], replies:["أحب الطعام الافتراضي 😋","ماذا تحب أن تأكل؟"]},
+{keywords:["مشروب"], replies:["قهوة افتراضية ☕","شاي افتراضي 🍵"]},
+{keywords:["رياضة"], replies:["الرياضة مهمة! 🏃‍♂️","أحب كرة القدم ⚽"]},
+{keywords:["مدرسة"], replies:["التعلم مهم 🎓","أتمنى لك دراسة ممتعة!"]},
+{keywords:["موسيقى"], replies:["أحب الموسيقى 🎵","هل تحب الأغاني؟"]},
+{keywords:["فيلم"], replies:["أحب الأفلام 🎬","ما آخر فيلم شاهدته؟"]},
+{keywords:["أصدقاء"], replies:["الأصدقاء مهمون 😄","أحب الدردشة معك!"]},
+{keywords:["كتاب"], replies:["القراءة ممتعة 📖","ما آخر كتاب قرأته؟"]},
+{keywords:["رحلة"], replies:["أحب السفر 🌍","إلى أين تحب السفر؟"]},
+{keywords:["برمجة"], replies:["البرمجة ممتعة 💻","هل تريد أن تتعلم؟"]},
+{keywords:["كم عمرك"], replies:["أنا دائماً صغير 🤖","ليس لدي عمر حقيقي 😅"]}
+];
+
+function sendMessage() {
+    const input = document.getElementById("userInput");
+    const message = input.value.trim();
+    if (!message) return;
+
+    const userMsg = document.createElement("p");
+    userMsg.className = "user";
+    userMsg.textContent = "أنت: " + message;
+    chatBox.appendChild(userMsg);
+
+    const msgLower = message.toLowerCase();
+    let reply = "آسف، مش فاهمك 😅";
+
+    for (let item of responses) {
+        for (let keyword of item.keywords) {
+            if (msgLower.includes(keyword.toLowerCase())) {
+                reply = item.replies[Math.floor(Math.random()*item.replies.length)];
+                break;
+            }
+        }
+    }
+
+    const aiMsg = document.createElement("p");
+    aiMsg.className = "ai";
+    aiMsg.textContent = "AI: " + reply;
+    chatBox.appendChild(aiMsg);
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+    input.value = "";
+    input.focus();
+}
+</script>
+</body>
+</html>
